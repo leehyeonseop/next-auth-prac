@@ -27,6 +27,8 @@ model User {
   role UserRole @default(USER)
   accounts      Account[]
   // sessions      Session[]
+  isTwoFactorEnabled Boolean @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
 }
 
 model Account {
@@ -57,7 +59,35 @@ model VerificationToken {
 
   @@unique([email, token])
 }
+
+model PasswordResetToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
  
+model TwoFactorToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId String
+  user User @relation(fields : [userId], references : [id], onDelete : Cascade)
+
+  @@unique([userId])
+}
+
+// Verification Token과 똑같더라도 분리하는것이 보안상 더 좋음.
 
 // npx prisma generate
 // npx prisma db push
